@@ -14,10 +14,14 @@ public class PlayerBehaviour : MonoBehaviour
 
     private Rigidbody2D rigidbody;
 
+    [Header("Animation")]
+    public AnimationState animState;
+    private Animator animatorController;
     // Start is called before the first frame update
     void Start()
     {
         rigidbody = GetComponent<Rigidbody2D>();
+        animatorController = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -43,8 +47,16 @@ public class PlayerBehaviour : MonoBehaviour
             if (x != 0)
             {
                 x = FlipAnimation(x);
-            } 
-            
+                animatorController.SetInteger("AnimationState", (int)AnimationState.RUN);//Run state
+                animState = AnimationState.RUN;
+            }
+            else
+			{
+                animatorController.SetInteger("AnimationState", (int)AnimationState.IDLE);//Idle
+                animState = AnimationState.IDLE;
+
+            }
+
             // Touch Input
             Vector2 worldTouch = new Vector2();
             foreach (var touch in Input.touches)
@@ -56,11 +68,16 @@ public class PlayerBehaviour : MonoBehaviour
             float jumpMoveForce = jump * verticalForce; // * deltaTime;
 
             float mass = rigidbody.mass * rigidbody.gravityScale;
-
+            
 
             rigidbody.AddForce(new Vector2(horizontalMoveForce, jumpMoveForce) * mass);
             rigidbody.velocity *= 0.99f; // scaling / stopping hack
         }
+        else
+		{
+            animatorController.SetInteger("AnimationState", (int)AnimationState.JUMP);//Jump state
+            animState = AnimationState.JUMP;
+		}
 
     }
 
