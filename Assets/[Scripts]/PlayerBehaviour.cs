@@ -33,15 +33,16 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void Move()
     {
+        // Keyboard Input
+        float x = Input.GetAxisRaw("Horizontal");
+        float y = Input.GetAxisRaw("Vertical");
+        float jump = Input.GetAxisRaw("Jump");
+
         if (isGrounded)
         {
             //float deltaTime = Time.deltaTime;
 
-            // Keyboard Input
-            float x = Input.GetAxisRaw("Horizontal");
-            float y = Input.GetAxisRaw("Vertical");
-            float jump = Input.GetAxisRaw("Jump");
-
+            
             // Check for Flip
 
             if (x != 0)
@@ -77,7 +78,18 @@ public class PlayerBehaviour : MonoBehaviour
 		{
             animatorController.SetInteger("AnimationState", (int)AnimationState.JUMP);//Jump state
             animState = AnimationState.JUMP;
-		}
+
+            if (x != 0)
+            {
+                x = FlipAnimation(x);
+                float horizontalMoveForce = x * horizontalForce * 0.25f;// * deltaTime;
+                float mass = rigidbody.mass * rigidbody.gravityScale;
+
+
+                rigidbody.AddForce(new Vector2(horizontalMoveForce, 0.0f) * mass);
+               
+            }
+        }
 
     }
 
@@ -106,4 +118,19 @@ public class PlayerBehaviour : MonoBehaviour
         Gizmos.DrawWireSphere(groundOrigin.position, groundRadius);
     }
 
+	private void OnCollisionEnter2D(Collision2D collision)
+	{
+		if(collision.gameObject.CompareTag("Platform"))
+		{
+            transform.SetParent(collision.transform);
+		}
+	}
+
+	private void OnCollisionExit2D(Collision2D collision)
+	{
+        if (collision.gameObject.CompareTag("Platform"))
+        {
+            transform.SetParent(null);
+        }
+    }
 }
